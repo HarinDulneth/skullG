@@ -6,6 +6,7 @@ import { Search, Info } from 'lucide-react';
 import { ANIMALS_DATABASE } from '@/data/animalDatabase';
 import type { Animal } from '@/types';
 import AnimalDetailModal from './AnimalDetailModal';
+import AnimalCardImage from './AnimalCardImage';
 
 const encTexts = {
   title: {
@@ -143,16 +144,18 @@ export default function Encyclopedia() {
       {/* Mammals Grid Container */}
       <div className="flex-1 glass-panel rounded-t-2xl md:rounded-b-2xl p-4 md:p-6 pb-2 md:pb-6 overflow-y-auto custom-scrollbar flex flex-col mb-0 border-b-0 md:border-b">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-6 pr-2">
-          {filteredMammals.map((m) => (
+          {filteredMammals.map((m) => {
+            return (
             <div
               key={m.name}
               onClick={() => setSelectedAnimal(m)}
               role="button"
               tabIndex={0}
-              className="bg-white p-5 rounded-xl text-left flex flex-col justify-between hover:bg-[var(--color-secondary)]/20 group transition-all duration-300 hover:shadow-md hover:-translate-y-1 min-h-[160px] gap-3 border-none cursor-pointer"
+              className="bg-white p-5 rounded-xl text-left flex flex-col justify-between hover:bg-[var(--color-secondary)]/20 group transition-all duration-300 hover:shadow-md hover:scale-[1.02] min-h-[160px] gap-3 border-none cursor-pointer overflow-hidden"
             >
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--color-primary)]/60 transition-colors">
+              <AnimalCardImage wikiUrl={m.wikiUrl} name={m.name} />
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--color-primary)]/60 transition-colors mt-2">
                 {m.order}
               </span>
               <h3 className="font-extrabold text-[var(--color-primary)] text-lg transition-colors line-clamp-1">
@@ -172,7 +175,8 @@ export default function Encyclopedia() {
               </span>
             </div>
             </div>
-          ))}
+            );
+          })}
           {filteredMammals.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center p-12 text-[var(--color-primary)]/50 border border-dashed border-[var(--color-primary)]/20 rounded-2xl">
             <Search size={48} className="mb-4 opacity-50" />
