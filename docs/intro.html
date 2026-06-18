@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SKAL4R</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { overflow: hidden; background: #050008; font-family: 'Outfit', sans-serif; }
+  canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
+
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { text-shadow: 0 0 30px rgba(245,166,35,0.3), 0 0 80px rgba(245,166,35,0.1); }
+    50% { text-shadow: 0 0 50px rgba(245,166,35,0.6), 0 0 120px rgba(245,166,35,0.2), 0 0 200px rgba(245,166,35,0.1); }
+  }
+
+  #overlay {
+    position: fixed; inset: 0; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: none;
+    padding-top: 12vh;
+  }
+  #overlay .top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #overlay .bottom {
+    padding-bottom: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .title {
+    font-size: clamp(48px, 11vw, 120px); font-weight: 900;
+    letter-spacing: -3px; color: #DEDBF3; line-height: 1;
+    opacity: 0; animation: fadeUp 1.8s ease 0.3s forwards;
+  }
+  .title .highlight {
+    color: #F5A623;
+    animation: pulseGlow 3s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  .sub {
+    font-size: clamp(10px, 1.3vw, 17px); font-weight: 200;
+    color: rgba(222,219,243,0.6); letter-spacing: 4px; text-transform: uppercase;
+    margin-top: 8px; opacity: 0; animation: fadeUp 1.8s ease 0.7s forwards;
+  }
+
+  .species-label {
+    position: fixed; bottom: 80px; z-index: 3; pointer-events: none;
+    font-size: clamp(14px, 2vw, 28px); font-weight: 600;
+    color: rgba(222,219,243,0.15); letter-spacing: 6px; text-transform: uppercase;
+    text-align: center; width: 100%;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stats-row {
+    display: flex; gap: clamp(24px, 4vw, 60px); margin-top: 12px;
+    justify-content: center; flex-wrap: wrap; opacity: 0;
+    animation: fadeUp 1.8s ease 1.1s forwards;
+  }
+  .stat { text-align: center; }
+  .stat .num {
+    font-size: clamp(20px, 2.5vw, 36px); font-weight: 800;
+    color: rgba(222,219,243,0.7); line-height: 1;
+  }
+  .stat .lbl {
+    font-size: clamp(7px, 0.6vw, 10px); text-transform: uppercase;
+    letter-spacing: 2px; color: rgba(222,219,243,0.25); margin-top: 3px;
+  }
+
+  .version {
+    position: fixed; bottom: 24px; font-size: 10px;
+    font-family: 'JetBrains Mono', monospace; color: rgba(222,219,243,0.12);
+    letter-spacing: 2px; z-index: 2; pointer-events: none;
+    opacity: 0; animation: fadeIn 2s ease 2s forwards;
+  }
+
+  .scanline {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px, rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 4px
+    );
+  }
+
+  @media (max-width: 600px) {
+    .title { letter-spacing: -2px; }
+    .sub { letter-spacing: 2px; }
+    .stats-row { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <div class="top">
+    <div class="title">SKAL<span class="highlight">4</span>R</div>
+    <div class="sub">Skull-Based Animal Classification &bull; Adaptive Reasoning</div>
+  </div>
+  <div class="bottom">
+    <div class="stats-row">
+      <div class="stat"><div class="num">91</div><div class="lbl">Species</div></div>
+      <div class="stat"><div class="num">8</div><div class="lbl">Traits</div></div>
+      <div class="stat"><div class="num">109</div><div class="lbl">Sub-Traits</div></div>
+      <div class="stat"><div class="num">3</div><div class="lbl">Languages</div></div>
+    </div>
+  </div>
+</div>
+<div class="species-label" id="speciesLabel">Felis catus</div>
+<div class="version">SKAL4R v1.4.7 &mdash; June 2026</div>
+<div class="scanline"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const W = window.innerWidth;
+const H = window.innerHeight;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050008);
+
+const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 60);
+camera.position.set(5.5, 1.0, 9);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.prepend(renderer.domElement);
+
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.3, 0.15);
+composer.addPass(bloom);
+
+// ─── ANIMAL SKULL PARAMETERS ────────────────────────────────────
+
+const ANIMALS = [
+  { id: 'cat',   label: 'Felis catus',       color: 0x8B7FBB },
+  { id: 'wolf',  label: 'Canis lupus',        color: 0x7BA7BC },
+  { id: 'cow',   label: 'Bos taurus',         color: 0xBCA47B },
+  { id: 'human', label: 'Homo sapiens',       color: 0xBC7B8B },
+  { id: 'lion',  label: 'Panthera leo',       color: 0xC49B5C },
+  { id: 'horse', label: 'Equus ferus',        color: 0x7BBC8B },
+  { id: 'bear',  label: 'Ursus arctos',       color: 0x8B6B4B },
+  { id: 'deer',  label: 'Cervus elaphus',     color: 0x6B8B7B },
+];
+
+const SPECIES_PARAMS = {
+  cat: {
+    cranium: { cx: 0.1, cy: 0.25, cz: 0, rx: 1.5, ry: 1.7, rz: 1.15 },
+    snout:   { cx: 1.7, cy: -0.1, cz: 0, rx: 0.55, ry: 0.35, rz: 0.35 },
+    jaw:     { cx: 0.5, cy: -1.5, cz: 0, rx: 0.75, ry: 0.25, rz: 0.55 },
+    lEye:    { cx: 0.8, cy: 0.35, cz: 0.6, r: 0.28 },
+    rEye:    { cx: 0.8, cy: 0.35, cz: -0.6, r: 0.28 },
+    nasal:   { cx: 1.2, cy: 0.0, cz: 0, rx: 0.15, ry: 0.1, rz: 0.2 },
+  },
+  wolf: {
+    cranium: { cx: -0.1, cy: 0.2, cz: 0, rx: 1.55, ry: 1.6, rz: 1.05 },
+    snout:   { cx: 2.2, cy: -0.1, cz: 0, rx: 0.6, ry: 0.4, rz: 0.3 },
+    jaw:     { cx: 0.7, cy: -1.6, cz: 0, rx: 0.85, ry: 0.3, rz: 0.5 },
+    lEye:    { cx: 1.0, cy: 0.3, cz: 0.5, r: 0.22 },
+    rEye:    { cx: 1.0, cy: 0.3, cz: -0.5, r: 0.22 },
+    nasal:   { cx: 1.6, cy: 0.0, cz: 0, rx: 0.2, ry: 0.1, rz: 0.15 },
+  },
+  cow: {
+    cranium: { cx: 0, cy: 0.35, cz: 0, rx: 1.75, ry: 1.4, rz: 1.45 },
+    snout:   { cx: 1.6, cy: -0.3, cz: 0, rx: 0.85, ry: 0.5, rz: 0.75 },
+    jaw:     { cx: 0.4, cy: -1.3, cz: 0, rx: 1.0, ry: 0.2, rz: 0.85 },
+    lEye:    { cx: 0.6, cy: 0.4, cz: 0.85, r: 0.18 },
+    rEye:    { cx: 0.6, cy: 0.4, cz: -0.85, r: 0.18 },
+    nasal:   { cx: 1.1, cy: -0.15, cz: 0, rx: 0.35, ry: 0.15, rz: 0.35 },
+  },
+  human: {
+    cranium: { cx: 0, cy: 0.4, cz: 0, rx: 1.35, ry: 1.8, rz: 1.2 },
+    snout:   { cx: 1.0, cy: -0.2, cz: 0, rx: 0.3, ry: 0.3, rz: 0.3 },
+    jaw:     { cx: 0.3, cy: -1.6, cz: 0, rx: 0.65, ry: 0.3, rz: 0.55 },
+    lEye:    { cx: 0.5, cy: 0.55, cz: 0.5, r: 0.26 },
+    rEye:    { cx: 0.5, cy: 0.55, cz: -0.5, r: 0.26 },
+    nasal:   { cx: 0.7, cy: -0.05, cz: 0, rx: 0.12, ry: 0.15, rz: 0.12 },
+  },
+  lion: {
+    cranium: { cx: 0.05, cy: 0.25, cz: 0, rx: 1.7, ry: 1.75, rz: 1.25 },
+    snout:   { cx: 1.8, cy: -0.15, cz: 0, rx: 0.7, ry: 0.45, rz: 0.4 },
+    jaw:     { cx: 0.6, cy: -1.6, cz: 0, rx: 0.9, ry: 0.3, rz: 0.6 },
+    lEye:    { cx: 0.85, cy: 0.35, cz: 0.65, r: 0.25 },
+    rEye:    { cx: 0.85, cy: 0.35, cz: -0.65, r: 0.25 },
+    nasal:   { cx: 1.3, cy: 0.0, cz: 0, rx: 0.2, ry: 0.1, rz: 0.2 },
+  },
+  horse: {
+    cranium: { cx: -0.2, cy: 0.3, cz: 0, rx: 1.6, ry: 1.5, rz: 1.2 },
+    snout:   { cx: 2.5, cy: -0.2, cz: 0, rx: 0.65, ry: 0.5, rz: 0.5 },
+    jaw:     { cx: 0.8, cy: -1.5, cz: 0, rx: 0.9, ry: 0.25, rz: 0.65 },
+    lEye:    { cx: 0.9, cy: 0.35, cz: 0.6, r: 0.2 },
+    rEye:    { cx: 0.9, cy: 0.35, cz: -0.6, r: 0.2 },
+    nasal:   { cx: 1.8, cy: -0.1, cz: 0, rx: 0.3, ry: 0.12, rz: 0.25 },
+  },
+  bear: {
+    cranium: { cx: 0, cy: 0.25, cz: 0, rx: 1.65, ry: 1.65, rz: 1.3 },
+    snout:   { cx: 1.6, cy: -0.2, cz: 0, rx: 0.7, ry: 0.5, rz: 0.5 },
+    jaw:     { cx: 0.55, cy: -1.55, cz: 0, rx: 0.85, ry: 0.3, rz: 0.65 },
+    lEye:    { cx: 0.7, cy: 0.3, cz: 0.6, r: 0.2 },
+    rEye:    { cx: 0.7, cy: 0.3, cz: -0.6, r: 0.2 },
+    nasal:   { cx: 1.1, cy: -0.05, cz: 0, rx: 0.25, ry: 0.12, rz: 0.2 },
+  },
+  deer: {
+    cranium: { cx: -0.1, cy: 0.3, cz: 0, rx: 1.5, ry: 1.5, rz: 1.1 },
+    snout:   { cx: 1.9, cy: -0.2, cz: 0, rx: 0.5, ry: 0.35, rz: 0.35 },
+    jaw:     { cx: 0.5, cy: -1.4, cz: 0, rx: 0.7, ry: 0.2, rz: 0.5 },
+    lEye:    { cx: 0.8, cy: 0.35, cz: 0.55, r: 0.22 },
+    rEye:    { cx: 0.8, cy: 0.35, cz: -0.55, r: 0.22 },
+    nasal:   { cx: 1.3, cy: -0.05, cz: 0, rx: 0.15, ry: 0.1, rz: 0.15 },
+  },
+};
+
+// ─── ELLIPSOID MATH ──────────────────────────────────────────────
+
+function rayEllipsoid(ox, oy, oz, dx, dy, dz, e) {
+  const rx = e.rx, ry = e.ry, rz = e.rz;
+  const cx = e.cx, cy = e.cy, cz = e.cz;
+  const ndx = dx / rx, ndy = dy / ry, ndz = dz / rz;
+  const ocx = (ox - cx) / rx, ocy = (oy - cy) / ry, ocz = (oz - cz) / rz;
+  const A = ndx*ndx + ndy*ndy + ndz*ndz;
+  const B = 2 * (ndx*ocx + ndy*ocy + ndz*ocz);
+  const C = ocx*ocx + ocy*ocy + ocz*ocz - 1;
+  const disc = B*B - 4*A*C;
+  if (disc < 0) return -1;
+  const t1 = (-B + Math.sqrt(disc)) / (2*A);
+  const t2 = (-B - Math.sqrt(disc)) / (2*A);
+  if (t1 < 0 && t2 < 0) return -1;
+  if (t1 < 0) return t2;
+  if (t2 < 0) return t1;
+  return Math.min(t1, t2);
+}
+
+function sphereTest(x, y, z, s) {
+  const dx = x - s.cx, dy = y - s.cy, dz = z - s.cz;
+  return dx*dx + dy*dy + dz*dz <= s.r * s.r;
+}
+
+function ellipsoidContains(x, y, z, e) {
+  const dx = (x - e.cx) / e.rx;
+  const dy = (y - e.cy) / e.ry;
+  const dz = (z - e.cz) / e.rz;
+  return dx*dx + dy*dy + dz*dz <= 1;
+}
+
+function isInsideSkull(x, y, z, p) {
+  const inCranium = ellipsoidContains(x, y, z, p.cranium);
+  const inSnout = ellipsoidContains(x, y, z, p.snout);
+  const inJaw = ellipsoidContains(x, y, z, p.jaw);
+  const inEye = sphereTest(x, y, z, p.lEye) || sphereTest(x, y, z, p.rEye);
+  return (inCranium || inSnout || inJaw) && !inEye;
+}
+
+function getSkullRadius(dir, p) {
+  const dx = dir.x, dy = dir.y, dz = dir.z;
+  const r1 = rayEllipsoid(0, 0, 0, dx, dy, dz, p.cranium);
+  const r2 = rayEllipsoid(0, 0, 0, dx, dy, dz, p.snout);
+  const r3 = rayEllipsoid(0, 0, 0, dx, dy, dz, p.jaw);
+  let r = Math.max(r1, r2, r3);
+
+  const px = r * dx, py = r * dy, pz = r * dz;
+  if (sphereTest(px, py, pz, p.lEye) || sphereTest(px, py, pz, p.rEye)) {
+    const rEyeL = rayEllipsoid(0, 0, 0, dx, dy, dz, {
+      cx: p.lEye.cx, cy: p.lEye.cy, cz: p.lEye.cz,
+      rx: p.lEye.r, ry: p.lEye.r, rz: p.lEye.r
+    });
+    const rEyeR = rayEllipsoid(0, 0, 0, dx, dy, dz, {
+      cx: p.rEye.cx, cy: p.rEye.cy, cz: p.rEye.cz,
+      rx: p.rEye.r, ry: p.rEye.r, rz: p.rEye.r
+    });
+    const rEye = Math.max(rEyeL, rEyeR);
+    if (rEye > 0 && rEye < r) r = rEye;
+  }
+  return r;
+}
+
+function getRandomDirection() {  
+  const theta = 2 * Math.PI * Math.random();
+  const phi = Math.acos(2 * Math.random() - 1);
+  return new THREE.Vector3(
+    Math.sin(phi) * Math.cos(theta),
+    Math.cos(phi),
+    Math.sin(phi) * Math.sin(theta)
+  );
+}
+
+// ─── GENERATE PARTICLE SETS ──────────────────────────────────────
+
+const PARTICLE_COUNT = 2000;
+const directions = [];
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  directions.push(getRandomDirection());
+}
+
+function generateSkullPoints(speciesId) {
+  const p = SPECIES_PARAMS[speciesId];
+  const points = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const dir = directions[i];
+    const r = getSkullRadius(dir, p) * (0.6 + 0.4 * Math.random());
+    const x = r * dir.x, y = r * dir.y, z = r * dir.z;
+    if (isInsideSkull(x, y, z, p)) {
+      points.push(new THREE.Vector3(x, y, z));
+    } else {
+      let found = false;
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const d2 = getRandomDirection();
+        const r2 = getSkullRadius(d2, p) * (0.6 + 0.4 * Math.random());
+        const px2 = r2 * d2.x, py2 = r2 * d2.y, pz2 = r2 * d2.z;
+        if (isInsideSkull(px2, py2, pz2, p)) {
+          points.push(new THREE.Vector3(px2, py2, pz2));
+          found = true;
+          break;
+        }
+      }
+      if (!found) points.push(new THREE.Vector3(0.001, 0.001, 0.001));
+    }
+  }
+  return points;
+}
+
+// ─── PRE-GENERATE ALL ANIMAL POINT SETS ─────────────────────────
+
+const allPointSets = {};
+for (const a of ANIMALS) {
+  allPointSets[a.id] = generateSkullPoints(a.id);
+}
+
+// ─── BUILD SCENE OBJECTS ────────────────────────────────────────
+
+const PARTICLE_SIZE = 0.035;
+const CONN_THRESHOLD = 0.5;
+
+const posArr = new Float32Array(PARTICLE_COUNT * 3);
+const colArr = new Float32Array(PARTICLE_COUNT * 3);
+
+const particleGeom = new THREE.BufferGeometry();
+particleGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+particleGeom.setAttribute('color', new THREE.BufferAttribute(colArr, 3));
+
+const particleMat = new THREE.PointsMaterial({
+  size: PARTICLE_SIZE,
+  vertexColors: true,
+  transparent: true,
+  opacity: 1,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+  sizeAttenuation: true,
+});
+const particleSystem = new THREE.Points(particleGeom, particleMat);
+scene.add(particleSystem);
+
+// Pre-compute connections for each animal
+function computeConnections(points, threshold) {
+  const positions = [];
+  const colors = [];
+  for (let i = 0; i < points.length && positions.length < 12000; i++) {
+    const pi = points[i];
+    for (let j = i + 1; j < points.length && positions.length < 12000; j++) {
+      const d = pi.distanceTo(points[j]);
+      if (d < threshold) {
+        positions.push(pi.x, pi.y, pi.z, points[j].x, points[j].y, points[j].z);
+        const a = 1 - d / threshold;
+        colors.push(0.42, 0.41, 0.57, a * 0.35, a * 0.32, a * 0.45);
+      }
+    }
+  }
+  return { positions, colors };
+}
+
+const allConnections = {};
+for (const a of ANIMALS) {
+  const pts = allPointSets[a.id];
+  const subset = [];
+  for (let i = 0; i < PARTICLE_COUNT; i += 2) {
+    subset.push(pts[i]);
+  }
+  allConnections[a.id] = computeConnections(subset, CONN_THRESHOLD);
+}
+
+let activeConnections = allConnections[ANIMALS[0].id];
+const connMat = new THREE.LineBasicMaterial({
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.6,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+
+function setupConnectionGeometry(data) {
+  const geom = new THREE.BufferGeometry();
+  if (data.positions.length > 0) {
+    geom.setAttribute('position', new THREE.Float32BufferAttribute(data.positions, 3));
+    geom.setAttribute('color', new THREE.Float32BufferAttribute(data.colors, 3));
+  }
+  return geom;
+}
+
+let connLines = new THREE.LineSegments(setupConnectionGeometry(activeConnections), connMat);
+scene.add(connLines);
+
+// ─── SIGNAL PARTICLES ────────────────────────────────────────────
+
+const SIG_COUNT = 80;
+const sigPosArr = new Float32Array(SIG_COUNT * 3);
+const sigGeom = new THREE.BufferGeometry();
+sigGeom.setAttribute('position', new THREE.BufferAttribute(sigPosArr, 3));
+const sigMat = new THREE.PointsMaterial({
+  size: 0.04,
+  color: 0xF5A623,
+  transparent: true,
+  opacity: 0.7,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+  sizeAttenuation: true,
+});
+const sigMesh = new THREE.Points(sigGeom, sigMat);
+scene.add(sigMesh);
+
+const sigData = [];
+for (let i = 0; i < SIG_COUNT; i++) {
+  sigData.push({
+    srcIdx: Math.floor(Math.random() * PARTICLE_COUNT),
+    dstIdx: Math.floor(Math.random() * PARTICLE_COUNT),
+    phase: Math.random(),
+    speed: 0.6 + Math.random() * 0.8,
+  });
+}
+
+// ─── STAR FIELD ──────────────────────────────────────────────────
+
+const starGeom = new THREE.BufferGeometry();
+const starPos = new Float32Array(3000 * 3);
+for (let i = 0; i < 3000; i++) {
+  const r = 15 + Math.random() * 30;
+  const th = Math.random() * 2 * Math.PI;
+  const ph = Math.acos(2 * Math.random() - 1);
+  starPos[i*3] = r * Math.sin(ph) * Math.cos(th);
+  starPos[i*3+1] = r * Math.cos(ph) * 0.3;
+  starPos[i*3+2] = r * Math.sin(ph) * Math.sin(th);
+}
+starGeom.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const stars = new THREE.Points(starGeom, new THREE.PointsMaterial({
+  size: 0.04, color: 0x6B6A92, transparent: true, opacity: 0.3,
+  blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+}));
+scene.add(stars);
+
+// ─── GLOW HALO ───────────────────────────────────────────────────
+
+const haloGeom = new THREE.SphereGeometry(0.01, 16, 16);
+const haloMat = new THREE.MeshBasicMaterial({
+  color: 0x6B6A92,
+  transparent: true,
+  opacity: 0.04,
+  blending: THREE.AdditiveBlending,
+});
+const halo = new THREE.Mesh(haloGeom, haloMat);
+halo.position.set(0.3, 0, 0);
+scene.add(halo);
+
+// ─── STATE ───────────────────────────────────────────────────────
+
+let currentAnimalIdx = 0;
+let targetAnimalIdx = 1;
+let morphProgress = 0;
+const morphSpeed = 0.008;
+const dwellTime = 10;
+const morphTime = 2.0;
+let dwellTimer = 0;
+let isMorphing = false;
+
+let pointsB = allPointSets[ANIMALS[1].id];
+
+function updateParticles(points, accentColor) {
+  const pos = particleGeom.attributes.position.array;
+  const col = particleGeom.attributes.color.array;
+
+  const bounds = { xmin: Infinity, xmax: -Infinity, ymin: Infinity, ymax: -Infinity, zmin: Infinity, zmax: -Infinity };
+  for (const p of points) {
+    if (p.x < bounds.xmin) bounds.xmin = p.x;
+    if (p.x > bounds.xmax) bounds.xmax = p.x;
+    if (p.y < bounds.ymin) bounds.ymin = p.y;
+    if (p.y > bounds.ymax) bounds.ymax = p.y;
+    if (p.z < bounds.zmin) bounds.zmin = p.z;
+    if (p.z > bounds.zmax) bounds.zmax = p.z;
+  }
+  const cx = (bounds.xmin + bounds.xmax) / 2;
+  const cy = (bounds.ymin + bounds.ymax) / 2;
+  const cz = (bounds.zmin + bounds.zmax) / 2;
+  const maxR = Math.max(bounds.xmax - bounds.xmin, bounds.ymax - bounds.ymin, bounds.zmax - bounds.zmin) / 2;
+
+  const baseCol = new THREE.Color(0xDEDBF3);
+  const accCol = new THREE.Color(accentColor || 0xF5A623);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const p = points[i];
+    pos[i*3] = p.x - cx;
+    pos[i*3+1] = (p.y - cy) * 0.95;
+    pos[i*3+2] = p.z - cz;
+
+    const dist = Math.sqrt((p.x-cx)**2 + (p.y-cy)**2 + (p.z-cz)**2) / maxR;
+    const c = baseCol.clone().lerp(accCol, Math.pow(dist, 0.5) * 0.12);
+    c.lerp(new THREE.Color(0x6B6A92), Math.random() * 0.2);
+    col[i*3] = c.r;
+    col[i*3+1] = c.g;
+    col[i*3+2] = c.b;
+  }
+  particleGeom.attributes.position.needsUpdate = true;
+  particleGeom.attributes.color.needsUpdate = true;
+}
+
+function switchConnections(id) {
+  const data = allConnections[id];
+  const newGeom = new THREE.BufferGeometry();
+  if (data.positions.length > 0) {
+    newGeom.setAttribute('position', new THREE.Float32BufferAttribute(data.positions, 3));
+    newGeom.setAttribute('color', new THREE.Float32BufferAttribute(data.colors, 3));
+  }
+  scene.remove(connLines);
+  connLines.geometry.dispose();
+  connLines = new THREE.LineSegments(newGeom, connMat);
+  scene.add(connLines);
+  activeConnections = data;
+}
+
+function setAnimal(index) {
+  const id = ANIMALS[index].id;
+  const points = allPointSets[id];
+  updateParticles(points, ANIMALS[index].color);
+  switchConnections(id);
+  document.getElementById('speciesLabel').textContent = ANIMALS[index].label;
+  currentAnimalIdx = index;
+}
+
+// ─── MOUSE ───────────────────────────────────────────────────────
+
+let mouseX = 0, mouseY = 0, tMouseX = 0, tMouseY = 0;
+document.addEventListener('mousemove', (e) => {
+  tMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  tMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+// ─── RESIZE ──────────────────────────────────────────────────────
+
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+});
+
+// ─── ANIMATION ───────────────────────────────────────────────────
+
+const clock = new THREE.Clock();
+let elapsed = 0;
+
+const tempVecA = new THREE.Vector3();
+
+function animate() {
+  const delta = Math.min(clock.getDelta(), 0.05);
+  elapsed += delta;
+
+  mouseX += (tMouseX - mouseX) * 0.035;
+  mouseY += (tMouseY - mouseY) * 0.035;
+
+  const orbitAngle = elapsed * 0.05;
+  const camRadius = 7.5 + mouseX * 1.0;
+  const camHeight = 1.5 + mouseY * 0.6;
+
+  camera.position.x = camRadius * Math.cos(orbitAngle);
+  camera.position.z = camRadius * Math.sin(orbitAngle);
+  camera.position.y = camHeight + Math.sin(elapsed * 0.07) * 0.25;
+  camera.lookAt(0, -0.2, 0);
+
+  // ─── ANIMAL MORPHING ────────────────────────────────────────
+
+  if (!isMorphing) {
+    dwellTimer += delta;
+    if (dwellTimer >= dwellTime) {
+      isMorphing = true;
+      morphProgress = 0;
+      targetAnimalIdx = (currentAnimalIdx + 1) % ANIMALS.length;
+      pointsB = allPointSets[ANIMALS[targetAnimalIdx].id];
+    }
+  }
+
+  const currentPoints = allPointSets[ANIMALS[currentAnimalIdx].id];
+
+  if (isMorphing) {
+    morphProgress += delta / morphTime;
+    if (morphProgress >= 1) {
+      morphProgress = 1;
+      isMorphing = false;
+      dwellTimer = 0;
+      currentAnimalIdx = targetAnimalIdx;
+      switchConnections(ANIMALS[currentAnimalIdx].id);
+      document.getElementById('speciesLabel').textContent = ANIMALS[currentAnimalIdx].label;
+    }
+
+    const ease = morphProgress < 0.5
+      ? 2 * morphProgress * morphProgress
+      : 1 - Math.pow(-2 * morphProgress + 2, 2) / 2;
+
+    const turbulence = Math.sin(morphProgress * Math.PI) * 0.3;
+    const scatter = Math.sin(morphProgress * Math.PI * 3) * 0.04;
+
+    const pos = particleGeom.attributes.position.array;
+    const col = particleGeom.attributes.color.array;
+
+    const bounds = { xmin: Infinity, xmax: -Infinity, ymin: Infinity, ymax: -Infinity, zmin: Infinity, zmax: -Infinity };
+    const allPts = currentPoints.map((p, i) => {
+      const lerped = tempVecA.copy(p).lerp(pointsB[i], ease);
+      const noise = Math.sin(p.x * 3 + morphProgress * 8 + i * 0.01) * scatter;
+      const noiseY = Math.cos(p.y * 3 + morphProgress * 7 + i * 0.013) * scatter;
+      const noiseZ = Math.sin(p.z * 3 + morphProgress * 9 + i * 0.017) * scatter;
+      const pp = new THREE.Vector3(
+        lerped.x + noise,
+        lerped.y + noiseY,
+        lerped.z + noiseZ
+      );
+      if (pp.x < bounds.xmin) bounds.xmin = pp.x;
+      if (pp.x > bounds.xmax) bounds.xmax = pp.x;
+      if (pp.y < bounds.ymin) bounds.ymin = pp.y;
+      if (pp.y > bounds.ymax) bounds.ymax = pp.y;
+      if (pp.z < bounds.zmin) bounds.zmin = pp.z;
+      if (pp.z > bounds.zmax) bounds.zmax = pp.z;
+      return pp;
+    });
+    const cx = (bounds.xmin + bounds.xmax) / 2;
+    const cy = (bounds.ymin + bounds.ymax) / 2;
+    const cz = (bounds.zmin + bounds.zmax) / 2;
+    const maxR = Math.max(bounds.xmax - bounds.xmin, bounds.ymax - bounds.ymin, bounds.zmax - bounds.zmin) / 2;
+
+    const baseCol = new THREE.Color(0xDEDBF3);
+    const targetCol = new THREE.Color(ANIMALS[targetAnimalIdx].color);
+    const fromCol = new THREE.Color(ANIMALS[currentAnimalIdx].color);
+    const flashCol = new THREE.Color(0xF5A623);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const p = allPts[i];
+      pos[i*3] = p.x - cx;
+      pos[i*3+1] = (p.y - cy) * 0.95;
+      pos[i*3+2] = p.z - cz;
+
+      const dist = Math.sqrt((p.x-cx)**2 + (p.y-cy)**2 + (p.z-cz)**2) / Math.max(maxR, 0.01);
+      const targetC = baseCol.clone().lerp(targetCol, 0.06 + Math.pow(dist, 0.5) * 0.10);
+      const fromC = baseCol.clone().lerp(fromCol, 0.06 + Math.pow(dist, 0.5) * 0.10);
+      const c = fromC.lerp(targetC, ease);
+      const flash = Math.sin(morphProgress * Math.PI) * 0.3;
+      c.lerp(flashCol, flash * (0.5 + Math.sin(i * 0.5) * 0.5));
+      c.lerp(new THREE.Color(0x6B6A92), 0.1);
+      col[i*3] = c.r;
+      col[i*3+1] = c.g;
+      col[i*3+2] = c.b;
+    }
+    particleGeom.attributes.position.needsUpdate = true;
+    particleGeom.attributes.color.needsUpdate = true;
+
+    document.getElementById('speciesLabel').textContent = ANIMALS[morphProgress < 0.5 ? currentAnimalIdx : targetAnimalIdx].label;
+  }
+
+  // ─── SIGNAL PARTICLES ────────────────────────────────────────
+
+  const pos2 = particleGeom.attributes.position.array;
+  const sigPos = sigGeom.attributes.position.array;
+
+  for (let i = 0; i < SIG_COUNT; i++) {
+    const sd = sigData[i];
+    sd.phase += delta * sd.speed * 0.08;
+    if (sd.phase > 1) {
+      sd.phase = 0;
+      sd.srcIdx = Math.floor(Math.random() * PARTICLE_COUNT);
+      sd.dstIdx = Math.floor(Math.random() * PARTICLE_COUNT);
+    }
+    const p = sd.phase;
+    const easeP = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    const i3 = sd.srcIdx * 3;
+    const j3 = sd.dstIdx * 3;
+    sigPos[i*3] = pos2[i3] + (pos2[j3] - pos2[i3]) * easeP;
+    sigPos[i*3+1] = pos2[i3+1] + (pos2[j3+1] - pos2[i3+1]) * easeP;
+    sigPos[i*3+2] = pos2[i3+2] + (pos2[j3+2] - pos2[i3+2]) * easeP;
+  }
+  sigGeom.attributes.position.needsUpdate = true;
+  sigMat.opacity = 0.4 + Math.sin(elapsed * 0.3) * 0.2;
+
+  // ─── AMBIENT MOVEMENT ────────────────────────────────────────
+
+  const breathe = 1 + Math.sin(elapsed * 0.2) * 0.006;
+  particleSystem.scale.setScalar(breathe);
+  connLines.scale.setScalar(breathe);
+  connLines.material.opacity = 0.35 + Math.sin(elapsed * 0.12) * 0.15;
+
+  stars.rotation.y = elapsed * 0.002;
+
+  halo.scale.setScalar(1 + Math.sin(elapsed * 0.3) * 0.1);
+  haloMat.opacity = 0.02 + Math.sin(elapsed * 0.2) * 0.015;
+
+  // ─── RENDER ──────────────────────────────────────────────────
+
+  composer.render();
+  requestAnimationFrame(animate);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+
+setAnimal(0);
+animate();
+
+console.log('SKAL4R — Neural Skull Morphing Engine v1.0');
+</script>
+</body>
+</html>
