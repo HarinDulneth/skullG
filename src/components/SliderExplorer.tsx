@@ -15,36 +15,36 @@ import { Settings2 } from 'lucide-react';
 
 const TRAIT_METADATA: TraitMeta[] = [
   {
-    key: 'teethSharpness',
-    label: { en: 'Teeth Sharpness', si: 'දත්වල තියුණු බව', ta: 'பற்களின் கூர்மை' },
+    key: 'dentition',
+    label: { en: 'Dentition', si: 'දන්ත ව්‍යුහය', ta: 'பல் அமைப்பு' },
     description: { 
-      en: 'From flat grinding molars to razor-sharp carnassials', 
-      si: 'පැතලි දත්වල සිට තියුණු දත් දක්වා', 
-      ta: 'தட்டையான பற்கள் முதல் கூர்மையான பற்கள் வரை' 
+      en: 'From herbivore grinding teeth to carnassial shearing', 
+      si: 'ශාක භක්ෂක දත්වල සිට මාංශ භක්ෂක දත් දක්වා', 
+      ta: 'தாவர உண்ணி பற்கள் முதல் ஊனுண்ணி பற்கள் வரை' 
     },
-    lowLabel: { en: 'Flat / Grinding', si: 'පැතලි', ta: 'தட்டையான' },
-    highLabel: { en: 'Razor Sharp', si: 'තියුණු', ta: 'கூர்மையான' },
+    lowLabel: { en: 'Grinding / Herbivore', si: 'ඇඹරීම', ta: 'அரைக்கும்' },
+    highLabel: { en: 'Shearing / Carnivore', si: 'කැපීම', ta: 'வெட்டும்' },
     icon: 'skull',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
   },
   {
-    key: 'carnivoryScore',
-    label: { en: 'Dietary Preference', si: 'ආහාර මනාපය', ta: 'உணவு விருப்பம்' },
+    key: 'specialAdaptations',
+    label: { en: 'Diet / Specialization', si: 'ආහාර / විශේෂීකරණය', ta: 'உணவு / சிறப்பாக்கம்' },
     description: { 
-      en: 'From obligate herbivore to obligate carnivore', 
-      si: 'ශාක භක්ෂක සිට මාංශ භක්ෂක දක්වා', 
-      ta: 'தாவர உண்ணி முதல் ஊனுண்ணி வரை' 
+      en: 'From generalist herbivore to highly specialized carnivore', 
+      si: 'සාමාන්‍ය භක්ෂක සිට විශේෂිත මාංශ භක්ෂක දක්වා', 
+      ta: 'பொதுவான உண்ணி முதல் சிறப்பு ஊனுண்ணி வரை' 
     },
-    lowLabel: { en: 'Pure Herbivore', si: 'ශාක භක්ෂක', ta: 'தாவர உண்ணி' },
-    highLabel: { en: 'Pure Carnivore', si: 'මාංශ භක්ෂක', ta: 'ஊனுண்ணி' },
+    lowLabel: { en: 'Generalist', si: 'සාමාන්‍ය', ta: 'பொதுவான' },
+    highLabel: { en: 'Highly Specialized', si: 'විශේෂිත', ta: 'மிகவும் சிறப்பான' },
     icon: 'beef',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
   },
   {
-    key: 'eyePosition',
-    label: { en: 'Eye Position', si: 'ඇස් පිහිටීම', ta: 'கண் நிலை' },
+    key: 'orbitVision',
+    label: { en: 'Orbit & Vision', si: 'අක්ෂි කුහරය සහ දර්ශනය', ta: 'கண் குழி மற்றும் பார்வை' },
     description: { 
       en: 'From fully lateral (prey) to forward-facing (predator)', 
       si: 'පැතිවල සිට ඉදිරිය බලා ඇති ඇස් දක්වා', 
@@ -57,71 +57,71 @@ const TRAIT_METADATA: TraitMeta[] = [
     gradientTo: '#11001F'
   },
   {
-    key: 'clawSharpness',
-    label: { en: 'Claw / Hoof Type', si: 'නියපොතු/කුර වර්ගය', ta: 'நகம்/குளம்பு வகை' },
+    key: 'muscleAttachments',
+    label: { en: 'Muscle Attachments', si: 'මාංශ පේශි සම්බන්ධක', ta: 'தசை இணைப்புகள்' },
     description: { 
-      en: 'From flat hooves to razor-sharp retractable claws', 
-      si: 'කුරවල සිට තියුණු නියපොතු දක්වා', 
-      ta: 'குளம்புகளிலிருந்து கூர்மையான நகங்கள் வரை' 
+      en: 'From weak muscle marks to extreme crests and fossae', 
+      si: 'දුර්වල මාංශ පේශි සලකුණු සිට ශක්තිමත් ලාංඡන දක්වා', 
+      ta: 'பலவீனமான தசை அடையாளங்கள் முதல் வலுவான முகடுகள் வரை' 
     },
-    lowLabel: { en: 'Flat Hooves', si: 'කුර', ta: 'குளம்புகள்' },
-    highLabel: { en: 'Sharp Claws', si: 'තියුණු නිය', ta: 'கூர்மையான நகங்கள்' },
+    lowLabel: { en: 'Weak / Smooth', si: 'දුර්වල', ta: 'பலவீனமான' },
+    highLabel: { en: 'Extreme Crests', si: 'ශක්තිමත්', ta: 'வலுவான முகடுகள்' },
     icon: 'paw-print',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
   },
   {
-    key: 'bodySize',
-    label: { en: 'Body Size', si: 'ශරීරයේ ප්‍රමාණය', ta: 'உடல் அளவு' },
+    key: 'skullProportions',
+    label: { en: 'Skull Size & Shape', si: 'හිස්කබලේ ප්‍රමාණය සහ හැඩය', ta: 'மண்டை ஓடு அளவு மற்றும் வடிவம்' },
     description: { 
-      en: 'From tiny mice to massive elephants', 
-      si: 'කුඩා සිට විශාල දක්වා', 
-      ta: 'சிறியதிலிருந்து பெரியது வரை' 
+      en: 'From gracile/narrow to broad/robust skulls', 
+      si: 'සිහින්/පටු සිට පළල්/ශක්තිමත් දක්වා', 
+      ta: 'மென்மையான/குறுகிய முதல் அகலமான/வலுவான வரை' 
     },
-    lowLabel: { en: 'Tiny (<1kg)', si: 'ඉතා කුඩා', ta: 'மிகச் சிறிய' },
-    highLabel: { en: 'Massive (>1000kg)', si: 'විශාල', ta: 'பிரம்மாண்டமான' },
+    lowLabel: { en: 'Gracile / Narrow', si: 'සිහින්', ta: 'மென்மையான' },
+    highLabel: { en: 'Broad / Robust', si: 'පළල්', ta: 'அகலமான' },
     icon: 'scale',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
   },
   {
-    key: 'skullRobustness',
-    label: { en: 'Skull Robustness', si: 'හිස්කබලේ ශක්තිමත් බව', ta: 'மண்டை ஓடு வலிமை' },
+    key: 'mandible',
+    label: { en: 'Mandible Strength', si: 'යටි හනුවේ ශක්තිය', ta: 'கீழ்த்தாடை வலிமை' },
     description: { 
-      en: 'Bone thickness and muscle attachment points', 
-      si: 'අස්ථි ඝනකම', 
-      ta: 'எலும்பு தடிமன்' 
+      en: 'From shallow/weak jaws to deep/powerful mandibles', 
+      si: 'නොගැඹුරු/දුර්වල සිට ගැඹුරු/ශක්තිමත් හනු දක්වා', 
+      ta: 'ஆழமில்லா/பலவீனமான முதல் ஆழமான/வலிமையான தாடை வரை' 
     },
-    lowLabel: { en: 'Delicate', si: 'සිහින්', ta: 'மென்மையான' },
-    highLabel: { en: 'Extremely Robust', si: 'ශක්තිමත්', ta: 'மிகவும் வலிமையான' },
+    lowLabel: { en: 'Shallow / Weak', si: 'නොගැඹුරු', ta: 'ஆழமில்லா' },
+    highLabel: { en: 'Deep / Powerful', si: 'ශක්තිමත්', ta: 'வலிமையான' },
     icon: 'bone',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
   },
   {
-    key: 'snoutLength',
-    label: { en: 'Snout Length', si: 'හොම්බේ දිග', ta: 'முகவாய் நீளம்' },
+    key: 'nasalRegion',
+    label: { en: 'Nasal Region', si: 'නාසික කලාපය', ta: 'மூக்குப் பகுதி' },
     description: { 
-      en: 'Relative length of the jaw and nasal cavity', 
+      en: 'Relative snout length and nasal cavity development', 
       si: 'හොම්බේ සාපේක්ෂ දිග', 
       ta: 'முகவாய் ஒப்பீட்டு நீளம்' 
     },
     lowLabel: { en: 'Flat / Short', si: 'කෙටි', ta: 'குட்டையான' },
-    highLabel: { en: 'Very Long', si: 'දිගු', ta: 'மிக நீளமான' },
+    highLabel: { en: 'Long / Proboscis', si: 'දිගු', ta: 'மிக நீளமான' },
     icon: 'ruler',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
   },
   {
-    key: 'tailLength',
-    label: { en: 'Tail Length', si: 'වලිගයේ දිග', ta: 'வால் நீளம்' },
+    key: 'cranialStructure',
+    label: { en: 'Cranial Structure', si: 'කපාල ව්‍යුහය', ta: 'மண்டையோட்டு அமைப்பு' },
     description: { 
-      en: 'Relative tail length for balance or grasping', 
-      si: 'වලිගයේ සාපේක්ෂ දිග', 
-      ta: 'வால் ஒப்பீட்டு நீளம்' 
+      en: 'From flat/primitive to expanded/derived cranial shape', 
+      si: 'පැතලි/මූලික සිට පුළුල්/ව්‍යුත්පන්න දක්වා', 
+      ta: 'தட்டையான/ஆதி முதல் விரிவடைந்த/வழிவந்த வரை' 
     },
-    lowLabel: { en: 'No Tail / Stub', si: 'වලිගයක් නැත', ta: 'வால் இல்லை' },
-    highLabel: { en: 'Very Long', si: 'ඉතා දිගු', ta: 'மிக நீளமான' },
+    lowLabel: { en: 'Flat / Primitive', si: 'පැතලි', ta: 'தட்டையான' },
+    highLabel: { en: 'Expanded / Derived', si: 'පුළුල්', ta: 'விரிவடைந்த' },
     icon: 'git-commit',
     gradientFrom: '#11001F',
     gradientTo: '#11001F'
@@ -129,14 +129,14 @@ const TRAIT_METADATA: TraitMeta[] = [
 ];
 
 const INITIAL_VALUES: Record<TraitKey, number> = {
-  teethSharpness: 5,
-  eyePosition: 5,
-  bodySize: 5,
-  skullRobustness: 5,
-  snoutLength: 5,
-  carnivoryScore: 5,
-  clawSharpness: 5,
-  tailLength: 5
+  dentition: 5,
+  orbitVision: 5,
+  skullProportions: 5,
+  mandible: 5,
+  nasalRegion: 5,
+  muscleAttachments: 5,
+  cranialStructure: 5,
+  specialAdaptations: 5
 };
 
 export default function SliderExplorer() {

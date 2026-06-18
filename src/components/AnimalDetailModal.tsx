@@ -96,7 +96,7 @@ export default function AnimalDetailModal({ animal, onClose }: Props) {
     p = 70; fa = 40; f = 20; s = 10; c = 90; mi = 20;
   }
 
-  const scoreNum = animal.traits.carnivoryScore || 5;
+  const scoreNum = animal.traits.specialAdaptations || 5;
   // Adjust values slightly based on Carnivory Score
   p = Math.min(100, Math.round(p + (scoreNum / 10) * 10));
   f = Math.max(10, Math.round(f - (scoreNum / 10) * 20));

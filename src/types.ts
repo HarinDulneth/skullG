@@ -14,14 +14,14 @@ export interface Animal {
 }
 
 export interface TraitScores {
-  teethSharpness: number;   // 1=flat grinding, 10=razor carnassials
-  eyePosition: number;      // 1=fully lateral, 10=fully forward
-  bodySize: number;          // 1=tiny (<100g), 10=massive (>3000kg)
-  skullRobustness: number;   // 1=gracile/delicate, 10=extremely robust
-  snoutLength: number;       // 1=very short/flat, 10=very long
-  carnivoryScore: number;    // 1=pure herbivore, 10=obligate carnivore
-  clawSharpness: number;     // 1=flat hooves/nails, 10=razor retractable claws
-  tailLength: number;        // 1=no tail/stub, 10=very long
+  dentition: number;           // 1=herbivore grinding, 10=carnassial shearing
+  skullProportions: number;    // 1=gracile/narrow, 10=broad/robust
+  orbitVision: number;         // 1=fully lateral, 10=fully forward (binocular)
+  mandible: number;            // 1=weak/shallow jaw, 10=deep/powerful jaw
+  nasalRegion: number;         // 1=short/flat nose, 10=long snout/proboscis
+  muscleAttachments: number;   // 1=weak muscle marks, 10=extreme crests/fossae
+  cranialStructure: number;    // 1=flat/primitive, 10=expanded/derived
+  specialAdaptations: number;  // 1=generalist, 10=highly specialized
 }
 
 export type TraitKey = keyof TraitScores;

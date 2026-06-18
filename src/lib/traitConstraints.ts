@@ -7,26 +7,26 @@ const TOLERANCE = 2;
 // Define strong biological correlations
 // If the user changes the 'source' trait, we check the 'target' traits for constraints
 export const CORRELATIONS: Record<TraitKey, TraitKey[]> = {
-  carnivoryScore: ['teethSharpness', 'eyePosition', 'clawSharpness'],
-  teethSharpness: ['carnivoryScore', 'eyePosition', 'clawSharpness'],
-  eyePosition: ['carnivoryScore', 'teethSharpness'],
-  clawSharpness: ['carnivoryScore', 'teethSharpness'],
-  bodySize: ['skullRobustness'],
-  skullRobustness: ['bodySize'],
-  snoutLength: [],
-  tailLength: []
+  specialAdaptations: ['dentition', 'orbitVision', 'muscleAttachments'],
+  dentition: ['specialAdaptations', 'orbitVision', 'muscleAttachments'],
+  orbitVision: ['specialAdaptations', 'dentition'],
+  muscleAttachments: ['specialAdaptations', 'dentition'],
+  skullProportions: ['mandible'],
+  mandible: ['skullProportions'],
+  nasalRegion: [],
+  cranialStructure: []
 };
 
 // Trait labels for notifications
 export const TRAIT_LABELS: Record<TraitKey, Record<Language, string>> = {
-  teethSharpness: { en: 'Teeth Sharpness', si: 'දත්වල තියුණු බව', ta: 'பற்களின் கூர்மை' },
-  eyePosition: { en: 'Eye Position', si: 'ඇස් පිහිටීම', ta: 'கண் நிலை' },
-  bodySize: { en: 'Body Size', si: 'ශරීරයේ ප්‍රමාණය', ta: 'உடல் அளவு' },
-  skullRobustness: { en: 'Skull Robustness', si: 'හිස්කබලේ ශක්තිමත් බව', ta: 'மண்டை ஓடு வலிமை' },
-  snoutLength: { en: 'Snout Length', si: 'හොම්බේ දිග', ta: 'முகவாய் நீளம்' },
-  carnivoryScore: { en: 'Diet/Carnivory', si: 'ආහාර/මාංශ භක්ෂක බව', ta: 'உணவு/ஊனுண்ணி' },
-  clawSharpness: { en: 'Claw/Hoof Type', si: 'නියපොතු/කුර වර්ගය', ta: 'நகம்/குளம்பு வகை' },
-  tailLength: { en: 'Tail Length', si: 'වලිගයේ දිග', ta: 'வால் நீளம்' }
+  dentition: { en: 'Dentition', si: 'දන්ත ව්‍යුහය', ta: 'பல் அமைப்பு' },
+  skullProportions: { en: 'Skull Proportions', si: 'හිස්කබලේ සමානුපාතික', ta: 'மண்டை ஓடு விகிதாச்ச்சிகள்' },
+  orbitVision: { en: 'Orbit & Vision', si: 'අක්ෂි කුහරය සහ දර්ශනය', ta: 'கண் குழி மற்றும் பார்வை' },
+  mandible: { en: 'Mandible', si: 'යටි හනුව', ta: 'கீழ்த்தாடை' },
+  nasalRegion: { en: 'Nasal Region', si: 'නාසික කලාපය', ta: 'மூக்குப் பகுதி' },
+  muscleAttachments: { en: 'Muscle Attachments', si: 'මාංශ පේශි සම්බන්ධක', ta: 'தசை இணைப்புகள்' },
+  cranialStructure: { en: 'Cranial Structure', si: 'කපාල ව්‍යුහය', ta: 'மண்டையோட்டு அமைப்பு' },
+  specialAdaptations: { en: 'Special Adaptations', si: 'විශේෂ අනුවර්තන', ta: 'சிறப்புத் தகவமைப்புகள்' }
 };
 
 export interface ConstraintResult {
