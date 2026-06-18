@@ -30,13 +30,13 @@ const TRAIT_METADATA: TraitMeta[] = [
   },
   {
     key: 'specialAdaptations',
-    label: { en: 'Diet / Specialization', si: 'ආහාර / විශේෂීකරණය', ta: 'உணவு / சிறப்பாக்கம்' },
+    label: { en: 'Diet Specialization', si: 'ආහාර විශේෂීකරණය', ta: 'உணவு சிறப்பாக்கம்' },
     description: { 
-      en: 'From generalist herbivore to highly specialized carnivore', 
-      si: 'සාමාන්‍ය භක්ෂක සිට විශේෂිත මාංශ භක්ෂක දක්වා', 
-      ta: 'பொதுவான உண்ணி முதல் சிறப்பு ஊனுண்ணி வரை' 
+      en: 'From herbivore to highly specialized carnivore', 
+      si: 'ශාකභක්ෂක සිට අතිශය විශේෂිත මාංශ භක්ෂක දක්වා', 
+      ta: 'தாவர உண்ணி முதல் மிகவும் சிறப்பு வாய்ந்த ஊனுண்ணி வரை' 
     },
-    lowLabel: { en: 'Generalist', si: 'සාමාන්‍ය', ta: 'பொதுவான' },
+    lowLabel: { en: 'Herbivore', si: 'ශාකභක්ෂක', ta: 'தாவர உண்ணி' },
     highLabel: { en: 'Highly Specialized', si: 'විශේෂිත', ta: 'மிகவும் சிறப்பான' },
     icon: 'beef',
     gradientFrom: '#11001F',

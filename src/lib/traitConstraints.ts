@@ -26,7 +26,7 @@ export const TRAIT_LABELS: Record<TraitKey, Record<Language, string>> = {
   nasalRegion: { en: 'Nasal Region', si: 'නාසික කලාපය', ta: 'மூக்குப் பகுதி' },
   muscleAttachments: { en: 'Muscle Attachments', si: 'මාංශ පේශි සම්බන්ධක', ta: 'தசை இணைப்புகள்' },
   cranialStructure: { en: 'Cranial Structure', si: 'කපාල ව්‍යුහය', ta: 'மண்டையோட்டு அமைப்பு' },
-  specialAdaptations: { en: 'Special Adaptations', si: 'විශේෂ අනුවර්තන', ta: 'சிறப்புத் தகவமைப்புகள்' }
+  specialAdaptations: { en: 'Diet Specialization', si: 'ආහාර විශේෂීකරණය', ta: 'உணவு சிறப்பாக்கம்' }
 };
 
 export interface ConstraintResult {
